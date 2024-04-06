@@ -1,9 +1,11 @@
 # cloud-ddns
-A simple DDNS to AWS API Client
+A simple DDNS Server to update DNS entries using various web APIs (ie aws route53) 
+allows you to use a standard DDNS client to send updates 
 
-this will listen for /aws/ZONEIDESTRING/?ip=ip.ad.dr.es&domain=domain.to.update
-the username will be your aws_access_key_id 
-password will be your aws_secret_access_key
+zero configuration required no secrets stored or saved
 
-so no configuration is required appart from the cli args of what ip / port to bind to (defaults to 127.0.0.1 port 8080)
+running the cloud-ddns binary with no args binds to localhost:8080 combining this with a reverse proxy for SSL is encouraged
 
+if you want to bind to an ip address other than localhost just run cloud-ddns IPADDRESS PORT 
+
+configure your ddns client to use http://ipaddress:port/aws/ZONEIDSTRING/ 
