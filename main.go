@@ -6,14 +6,12 @@ import (
 	"strconv"
 )
 
-//Globally define default host and port to listen on
-//leaving this default is recommended for most use cases,
-//and running it behind a reverse proxy with ssl
-
 var ip net.IP
 var port int
 
 func main() {
+	// set default values to for ip/port to bind too, change this if you really know what you're doing
+	// other wise run a reverse proxy with ssl to provide external access to this questionable app
 	ip = net.ParseIP("127.0.0.1")
 	port = 8080
 	parseArgs()
