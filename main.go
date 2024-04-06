@@ -2,6 +2,7 @@ package main
 
 import (
 	"net"
+	"net/http"
 	"os"
 	"strconv"
 )
@@ -15,11 +16,14 @@ func main() {
 	ip = net.ParseIP("127.0.0.1")
 	port = 8080
 	parseArgs()
+	connectionString := ip.String() + ":" + strconv.Itoa(port)
+	http.HandleFunc("/aws/", awsBasicAuth(MyHandler))
+	http.ListenAndServe(connectionString, nil)
 }
 
 func parseArgs() {
 	// Check if command line arguments are provided and if they are in the right format
-	// this app only accepts 1 arg ip.ad.dr.es port ie cloud-ddns 10.0.0.1 8080
+	// this app only accepts 1 arg ip.ad.dr.es port ie ./cloud-ddns 10.0.0.1 8080
 	if len(os.Args) == 3 {
 		if net.ParseIP(os.Args[1]) != nil {
 			ip = net.ParseIP(os.Args[1])
