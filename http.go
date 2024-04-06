@@ -21,7 +21,7 @@ func awsBasicAuth(handler http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func MyHandler(w http.ResponseWriter, r *http.Request) {
+func awsHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello, you've entered %s!\n", r.URL.Path[1:])
 	err := r.ParseForm()
 	if err != nil {

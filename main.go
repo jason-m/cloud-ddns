@@ -17,7 +17,7 @@ func main() {
 	port = 8080
 	parseArgs()
 	connectionString := ip.String() + ":" + strconv.Itoa(port)
-	http.HandleFunc("/aws/", awsBasicAuth(MyHandler))
+	http.HandleFunc("/aws/", awsBasicAuth(awsHandler))
 	http.ListenAndServe(connectionString, nil)
 }
 
