@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"net"
 	"net/http"
 )
 
@@ -22,15 +24,33 @@ func awsBasicAuth(handler http.HandlerFunc) http.HandlerFunc {
 }
 
 func awsHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, you've entered %s!\n", r.URL.Path[1:])
-	err := r.ParseForm()
+	// first check for required form entries to satisfy ddns standard
+	// then check for aws specific values (ie /aws/ZONEID)
+	err := checkForms(r)
 	if err != nil {
-		http.Error(w, "Failed to parse form", http.StatusBadRequest)
-		return
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	} else {
+		w.WriteHeader(400)
+		w.Write([]byte("OK.\n"))
 	}
-	for key, values := range r.Form { // range over map
-		for _, value := range values { // range over []string
-			fmt.Printf("Form data: %s = %s\n", key, value)
-		}
+}
+
+func checkForms(r *http.Request) (err error) {
+	// since dyndns proto always requires these 2 form values generic function for checking them
+	err = r.ParseForm()
+	if err != nil {
+		err = errors.New("failed to parse form")
+		return err
+	}
+
+	ip, check := r.Form["ip"]
+	if !check {
+		err = errors.New("required form value \"ip\"")
+		return err
+	} else if net.ParseIP(ip[0]) == nil {
+		err = errors.New("ip address invalid")
+		return err
+	} else {
+		return nil
 	}
 }
