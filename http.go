@@ -10,9 +10,12 @@ import (
 	"net/http"
 )
 
+var user, pass string
+var ok bool
+
 func awsBasicAuth(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		user, pass, ok := r.BasicAuth()
+		user, pass, ok = r.BasicAuth()
 
 		if !ok {
 			w.Header().Set("WWW-Authenticate", `Basic realm="Please enter your username and password"`)
@@ -32,9 +35,14 @@ func awsHandler(w http.ResponseWriter, r *http.Request) {
 	err := checkForms(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+	//w.WriteHeader(400)
+	//w.Write([]byte("OK.\n"))
+	awsSession, err := awsSetup(user, pass)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
-		w.WriteHeader(400)
-		w.Write([]byte("OK.\n"))
+		fmt.Print(awsSession)
 	}
 }
 
