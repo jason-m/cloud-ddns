@@ -1,5 +1,8 @@
 package main
 
+// This file contains the generic DDNS related functions and http handlers for each cloud service
+// for cloud service specific functions stored in there own CLOUDNAME.go files in the same directory
+
 import (
 	"errors"
 	"fmt"
