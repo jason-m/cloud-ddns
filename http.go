@@ -5,7 +5,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"net"
 	"net/http"
 	"strings"
@@ -46,7 +45,7 @@ func awsHandler(w http.ResponseWriter, r *http.Request) {
 	awsSession, err := awsSetup(user, pass)
 
 	if awsSession != nil {
-		fmt.Println("Sessionn setup")
+		// fmt.Println("Sessionn setup")
 		err = awsRoute53(awsSession, getZoneid, hostname, ip)
 	}
 	if err != nil {
