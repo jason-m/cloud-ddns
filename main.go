@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log/syslog"
 	"net"
 	"net/http"
 	"os"
@@ -9,6 +10,8 @@ import (
 
 var listenIP net.IP
 var port int
+
+const appName = "cloud-ddns"
 
 func main() {
 	// set default values to for ip/port to bind too, change this if you really know what you're doing
@@ -30,10 +33,13 @@ func parseArgs() {
 			portNum, err := strconv.Atoi(os.Args[2])
 			if err == nil && portNum > 1 && portNum < 65534 {
 				port = portNum
+				logger("application listening on "+listenIP.String()+":"+strconv.Itoa(port), "info")
 			} else {
+				logger("failed to start invalid port specified", "err")
 				panic("invalid port specified")
 			}
 		} else {
+			logger("failed to start invalid ip specified", "err")
 			panic("invalid ip specified")
 		}
 	} else if len(os.Args) == 1 {
@@ -41,6 +47,21 @@ func parseArgs() {
 		// nothign to do here really
 	} else {
 		// fmt.Print(len(os.Args))
+		logger("failed to start invalid command line args", "err")
 		panic("too many or too few arguments this accepts either no arguments or 2 arguments in the format of:\n cloud-dns ipaddress port")
+	}
+}
+
+func logger(message, loglevel string) {
+	switch loglevel {
+	case "err":
+		errLog, _ := syslog.New(syslog.LOG_ERR, appName)
+		errLog.Err(message)
+	case "notice":
+		noticeLog, _ := syslog.New(syslog.LOG_NOTICE, appName)
+		noticeLog.Notice(message)
+	case "info":
+		infoLog, _ := syslog.New(syslog.LOG_INFO, appName)
+		infoLog.Info(message)
 	}
 }

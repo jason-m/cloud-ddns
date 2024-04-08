@@ -29,14 +29,10 @@ func awsRoute53(session *session.Session, zoneid string, hostname string, ip str
 		return err
 	}
 	// ensure zoneid is exists
-	// fmt.Println(zones.HostedZones)
 	var foundZone bool
 	for z := range zones.HostedZones {
 		foundZone = false
 		if strings.Contains(*zones.HostedZones[z].Id, zoneid) {
-			// fmt.Println("Zone Found")
-			// fmt.Println(*zones.HostedZones[z].Name)
-			// fmt.Println(hostname)
 			if strings.Contains(hostname+".", *zones.HostedZones[z].Name) {
 				// fmt.Println("Hostname matches zone")
 				foundZone = true
