@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"strings"
 )
 
 var user, pass string
@@ -24,7 +25,7 @@ func awsBasicAuth(handler http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		fmt.Printf("Username: %s, Password: %s\n", user, pass)
+		// fmt.Printf("Username: %s, Password: %s\n", user, pass)
 		handler(w, r)
 	}
 }
@@ -32,36 +33,56 @@ func awsBasicAuth(handler http.HandlerFunc) http.HandlerFunc {
 func awsHandler(w http.ResponseWriter, r *http.Request) {
 	// first check for required form entries to satisfy ddns standard
 	// then check for aws specific values (ie /aws/ZONEID)
-	err := checkForms(r)
+	ip, hostname, err := checkForms(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-	//w.WriteHeader(400)
-	//w.Write([]byte("OK.\n"))
+
+	// gets 3rd entry since url should be hostname/aws/zoneid
+	getZoneid := r.URL.Path
+	getZoneid = strings.Split(getZoneid, "/")[2]
+
+	// Setup AWS Session
 	awsSession, err := awsSetup(user, pass)
+
+	if awsSession != nil {
+		fmt.Println("Sessionn setup")
+		err = awsRoute53(awsSession, getZoneid, hostname, ip)
+	}
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
-		fmt.Print(awsSession)
+		// fmt.Printf(" %v \n\n", awsSession)
 	}
+
 }
 
-func checkForms(r *http.Request) (err error) {
+func checkForms(r *http.Request) (ip string, hostname string, err error) {
 	// since dyndns proto always requires these 2 form values generic function for checking them
 	err = r.ParseForm()
 	if err != nil {
 		err = errors.New("failed to parse form")
-		return err
+		return "", "", err
 	}
-
-	ip, check := r.Form["ip"]
+	var ipCheck []string
+	var check bool
+	ipCheck, check = r.Form["ip"]
 	if !check {
 		err = errors.New("required form value \"ip\"")
-		return err
-	} else if net.ParseIP(ip[0]) == nil {
+		return "", "", err
+	} else if net.ParseIP(ipCheck[0]) == nil {
 		err = errors.New("ip address invalid")
-		return err
+		return "", "", err
 	} else {
-		return nil
+		ip = ipCheck[0]
 	}
+	var nameCheck []string
+	nameCheck, check = r.Form["hostname"]
+	if !check {
+		err = errors.New("required form value \"hostname\"")
+		return "", "", err
+	} else {
+		hostname = nameCheck[0]
+	}
+	return ip, hostname, nil
 }
