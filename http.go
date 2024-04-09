@@ -92,8 +92,13 @@ func checkForms(r *http.Request) (ip string, hostname string, err error) {
 	var nameCheck []string
 	nameCheck, check = r.Form["hostname"]
 	if !check {
-		err = errors.New("required form value \"hostname\"")
-		return "", "", err
+		nameCheck, check = r.Form["host"]
+		if !check {
+			err = errors.New("required form value \"hostname\"")
+			return "", "", err
+		} else {
+			hostname = nameCheck[0]
+		}
 	} else {
 		hostname = nameCheck[0]
 	}
