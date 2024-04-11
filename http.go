@@ -7,13 +7,12 @@ import (
 	"errors"
 	"net"
 	"net/http"
-	"strings"
 )
 
 var user, pass string
 var ok bool
 
-func awsBasicAuth(handler http.HandlerFunc) http.HandlerFunc {
+func BasicAuth(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, pass, ok = r.BasicAuth()
 
@@ -27,47 +26,6 @@ func awsBasicAuth(handler http.HandlerFunc) http.HandlerFunc {
 		// fmt.Printf("Username: %s, Password: %s\n", user, pass)
 		handler(w, r)
 	}
-}
-
-func awsHandler(w http.ResponseWriter, r *http.Request) {
-	// first check for required form entries to satisfy ddns standard
-	// then check for aws specific values (ie /aws/ZONEID)
-	// fmt.Println(r.RemoteAddr)
-	ip, hostname, err := checkForms(r)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		logger("client: "+r.RemoteAddr+" "+err.Error(), "err")
-	}
-
-	// gets 3rd entry since url should be hostname/aws/zoneid
-	// makes sure the zoneid is included in the url
-	getZoneid := r.URL.Path
-	// 4th entry should be the ?ip= blah blah
-	// 2nd is the /aws/ so
-	if len(strings.Split(getZoneid, "/")) != 4 {
-		http.Error(w, "zoneid not detected", http.StatusBadRequest)
-		logger("client: "+r.RemoteAddr+" zoneid not detected", "err")
-		return
-	} else {
-		getZoneid = strings.Split(getZoneid, "/")[2]
-	}
-
-	// Setup AWS Session
-	awsSession, err := awsSetup(user, pass)
-
-	if awsSession != nil {
-		// if session is created then updated dns
-		err = awsRoute53(awsSession, getZoneid, hostname, ip)
-	}
-	if err != nil {
-		logger("client:"+r.RemoteAddr+" "+err.Error(), "err")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	} else {
-		w.WriteHeader(400)
-		w.Write([]byte("OK\n"))
-		logger("client: "+r.RemoteAddr+" succesfully updated AWS DNS hostname: "+hostname+" ip: "+ip, "info")
-	}
-
 }
 
 func checkForms(r *http.Request) (ip string, hostname string, err error) {

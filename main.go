@@ -20,7 +20,8 @@ func main() {
 	port = 8080
 	parseArgs()
 	connectionString := listenIP.String() + ":" + strconv.Itoa(port)
-	http.HandleFunc("/aws/", awsBasicAuth(awsHandler))
+	http.HandleFunc("/aws/", BasicAuth(awsHandler))
+	http.HandleFunc("/cloudfare/", BasicAuth(cfHandler))
 	http.ListenAndServe(connectionString, nil)
 }
 

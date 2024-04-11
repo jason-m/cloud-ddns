@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"net/http"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -9,6 +10,47 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/route53"
 )
+
+func awsHandler(w http.ResponseWriter, r *http.Request) {
+	// first check for required form entries to satisfy ddns standard
+	// then check for aws specific values (ie /aws/ZONEID)
+	// fmt.Println(r.RemoteAddr)
+	ip, hostname, err := checkForms(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		logger("client: "+r.RemoteAddr+" "+err.Error(), "err")
+	}
+
+	// gets 3rd entry since url should be hostname/aws/zoneid
+	// makes sure the zoneid is included in the url
+	getZoneid := r.URL.Path
+	// 4th entry should be the ?ip= blah blah
+	// 2nd is the /aws/ so
+	if len(strings.Split(getZoneid, "/")) != 4 {
+		http.Error(w, "zoneid not detected", http.StatusBadRequest)
+		logger("client: "+r.RemoteAddr+" zoneid not detected", "err")
+		return
+	} else {
+		getZoneid = strings.Split(getZoneid, "/")[2]
+	}
+
+	// Setup AWS Session
+	awsSession, err := awsSetup(user, pass)
+
+	if awsSession != nil {
+		// if session is created then updated dns
+		err = awsRoute53(awsSession, getZoneid, hostname, ip)
+	}
+	if err != nil {
+		logger("client:"+r.RemoteAddr+" "+err.Error(), "err")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(400)
+		w.Write([]byte("OK\n"))
+		logger("client: "+r.RemoteAddr+" succesfully updated AWS DNS hostname: "+hostname+" ip: "+ip, "info")
+	}
+
+}
 
 func awsSetup(accessKey, secretKey string) (*session.Session, error) {
 	session, err := session.NewSession(&aws.Config{
