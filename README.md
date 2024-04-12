@@ -11,6 +11,6 @@ Client configuration:
    - point your ddns client to http://ipaddress:port/aws/ZONEIDSTRING/
    - use your AWS client id for the username and client secret for the password
   
- - for Cloudfare( WIP )
+ - for Cloudflare( WIP )
    - point your ddns client to http://ipaddress:port/cloudfare/
    - set username to your zone name (ie domain.com) and password to your API Token 
