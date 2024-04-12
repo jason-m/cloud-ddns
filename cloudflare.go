@@ -9,13 +9,16 @@ import (
 )
 
 func cfHandler(w http.ResponseWriter, r *http.Request) {
-	// first check for required form entries to satisfy ddns standard
-	// then check for aws specific values (ie /aws/ZONEID)
-	// fmt.Println(r.RemoteAddr)
+
+	client := r.Header.Get("X-Forwarded-For")
+	if client == "" {
+		client = r.RemoteAddr
+	}
+
 	ip, hostname, err := checkForms(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		logger("client: "+r.RemoteAddr+" "+err.Error(), "err")
+		logger("client: "+client+" "+err.Error(), "err")
 	}
 	// fmt.Println(ip, hostname)
 
@@ -23,11 +26,11 @@ func cfHandler(w http.ResponseWriter, r *http.Request) {
 	err = cfDoUpdate(user, pass, hostname, ip)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		logger("client: "+r.RemoteAddr+" "+err.Error(), "err")
+		logger("client: "+client+" "+err.Error(), "err")
 	} else {
 		w.WriteHeader(400)
 		w.Write([]byte("OK\n"))
-		logger("client: "+r.RemoteAddr+" succesfully updated Cloudflare DNS hostname: "+hostname+" ip: "+ip, "info")
+		logger("client: "+client+" succesfully updated Cloudflare DNS hostname: "+hostname+" ip: "+ip, "info")
 	}
 
 }

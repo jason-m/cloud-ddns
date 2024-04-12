@@ -12,13 +12,16 @@ import (
 )
 
 func awsHandler(w http.ResponseWriter, r *http.Request) {
-	// first check for required form entries to satisfy ddns standard
-	// then check for aws specific values (ie /aws/ZONEID)
-	// fmt.Println(r.RemoteAddr)
+
+	client := r.Header.Get("X-Forwarded-For")
+	if client == "" {
+		client = r.RemoteAddr
+	}
+
 	ip, hostname, err := checkForms(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		logger("client: "+r.RemoteAddr+" "+err.Error(), "err")
+		logger("client: "+client+" "+err.Error(), "err")
 	}
 
 	// gets 3rd entry since url should be hostname/aws/zoneid
@@ -28,7 +31,7 @@ func awsHandler(w http.ResponseWriter, r *http.Request) {
 	// 2nd is the /aws/ so
 	if len(strings.Split(getZoneid, "/")) != 4 {
 		http.Error(w, "zoneid not detected", http.StatusBadRequest)
-		logger("client: "+r.RemoteAddr+" zoneid not detected", "err")
+		logger("client: "+client+" zoneid not detected", "err")
 		return
 	} else {
 		getZoneid = strings.Split(getZoneid, "/")[2]
@@ -42,12 +45,12 @@ func awsHandler(w http.ResponseWriter, r *http.Request) {
 		err = awsRoute53(awsSession, getZoneid, hostname, ip)
 	}
 	if err != nil {
-		logger("client:"+r.RemoteAddr+" "+err.Error(), "err")
+		logger("client:"+client+" "+err.Error(), "err")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
 		w.WriteHeader(400)
 		w.Write([]byte("OK\n"))
-		logger("client: "+r.RemoteAddr+" succesfully updated AWS DNS hostname: "+hostname+" ip: "+ip, "info")
+		logger("client: "+client+" succesfully updated AWS DNS hostname: "+hostname+" ip: "+ip, "info")
 	}
 
 }
