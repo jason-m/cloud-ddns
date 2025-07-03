@@ -1,17 +1,45 @@
-# cloud-ddns
-A simple DDNS Server to update DNS entries using various web APIs (ie aws route53) 
-allows you to use a standard DDNS client to send updates 
+# Cloud DDNS
 
- - zero configuration required no secrets stored or saved
- - running the cloud-ddns binary with no args binds to localhost:8080 combining this with a reverse proxy for SSL is encouraged
- - if you want to bind to an ip address other than localhost just run cloud-ddns IPADDRESS PORT 
+This is a Go application that acts as a Dynamic DNS (DDNS) bridge, converting DynDNS-formatted HTTP requests into API calls for cloud DNS services. Here's what it does:
 
-Client configuration: 
- - for AWS Route53
-   - point your ddns client to http://ipaddress:port/aws/ZONEIDSTRING/
-   - use your AWS client id for the username and client secret for the password
-  
- - for Cloudflare
-   - point your ddns client to http://ipaddress:port/cloudflare/
-   - set username to your zone name (ie domain.com) and password to your API Token
-   - pairs nicely with cloudlfares tunneld to provide https termination and public accessibility 
+## Overview
+
+The application provides a unified interface for updating DNS records across different cloud providers (AWS Route53 and Cloudflare) using the standard DynDNS HTTP protocol format.
+
+## Architecture
+
+**Main Components:**
+- **HTTP Server** (`main.go`, `http.go`) - Handles incoming requests with basic authentication
+- **AWS Route53 Handler** (`aws.go`) - Manages DNS updates for AWS Route53 
+- **Cloudflare Handler** (`cloudflare.go`) - Manages DNS updates for Cloudflare DNS
+
+## How It Works
+
+**Request Format:**
+- AWS: `http://server:port/aws/[zoneid]?ip=[ip_address]&hostname=[hostname]`
+- Cloudflare: `http://server:port/cloudflare/?ip=[ip_address]&hostname=[hostname]`
+
+**Authentication:**
+- Uses HTTP Basic Authentication
+- Username/password serve different purposes for each provider:
+  - AWS: username = access key, password = secret key
+  - Cloudflare: username = zone name, password = API token
+
+**Process Flow:**
+1. Client sends DynDNS-formatted request
+2. Server validates credentials and form data
+3. Extracts IP address and hostname from request
+4. Calls appropriate cloud provider API
+5. Creates or updates DNS A record
+6. Returns success/failure response
+
+## Key Features
+
+- **Dual Provider Support** - Works with both AWS Route53 and Cloudflare
+- **Standard DynDNS Protocol** - Compatible with existing DynDNS clients
+- **Automatic Record Management** - Creates new records or updates existing ones
+- **Security** - Requires authentication and validates input
+- **Logging** - Uses syslog for operation logging
+- **Configurable** - Supports custom IP/port binding
+
+This is particularly useful for home networks or small businesses that want to use enterprise cloud DNS services with standard DynDNS-compatible routers or clients.
