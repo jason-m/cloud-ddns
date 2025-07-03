@@ -12,6 +12,7 @@ The application provides a unified interface for updating DNS records across dif
 - **HTTP Server** (`main.go`, `http.go`) - Handles incoming requests with basic authentication
 - **AWS Route53 Handler** (`aws.go`) - Manages DNS updates for AWS Route53 
 - **Cloudflare Handler** (`cloudflare.go`) - Manages DNS updates for Cloudflare DNS
+- **Digital Ocean Handler** (`digitalocean.go`) - Maanages DNS updates for Ditital Ocean
 
 ## How It Works
 
@@ -24,6 +25,7 @@ The application provides a unified interface for updating DNS records across dif
 - Username/password serve different purposes for each provider:
   - AWS: username = access key, password = secret key
   - Cloudflare: username = zone name, password = API token
+  - Digital Ocean username = zone name (full fqdn), password = API Token
 
 **Process Flow:**
 1. Client sends DynDNS-formatted request
