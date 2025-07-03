@@ -22,6 +22,7 @@ func main() {
 	connectionString := listenIP.String() + ":" + strconv.Itoa(port)
 	http.HandleFunc("/aws/", BasicAuth(awsHandler))
 	http.HandleFunc("/cloudflare/", BasicAuth(cfHandler))
+	http.HandleFunc("/digitalocean/", BasicAuth(doHandler))
 	http.ListenAndServe(connectionString, nil)
 }
 

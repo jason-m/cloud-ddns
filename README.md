@@ -19,13 +19,14 @@ The application provides a unified interface for updating DNS records across dif
 **Request Format:**
 - AWS: `http://server:port/aws/[zoneid]?ip=[ip_address]&hostname=[hostname]`
 - Cloudflare: `http://server:port/cloudflare/?ip=[ip_address]&hostname=[hostname]`
+- http://server:port/digitalocean/?ip=[ip_address]&hostname=[hostname]
 
 **Authentication:**
 - Uses HTTP Basic Authentication
 - Username/password serve different purposes for each provider:
   - AWS: username = access key, password = secret key
   - Cloudflare: username = zone name, password = API token
-  - Digital Ocean username = zone name (full fqdn), password = API Token
+  - Digital Ocean username = zone name, password = API Token
 
 **Process Flow:**
 1. Client sends DynDNS-formatted request
