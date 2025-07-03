@@ -28,7 +28,7 @@ func cfHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		logger("client: "+client+" "+err.Error(), "err")
 	} else {
-		w.WriteHeader(400)
+		w.WriteHeader(200)
 		w.Write([]byte("OK\n"))
 		logger("client: "+client+" succesfully updated Cloudflare DNS hostname: "+hostname+" ip: "+ip, "info")
 	}

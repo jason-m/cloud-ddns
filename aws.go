@@ -48,7 +48,7 @@ func awsHandler(w http.ResponseWriter, r *http.Request) {
 		logger("client:"+client+" "+err.Error(), "err")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
-		w.WriteHeader(400)
+		w.WriteHeader(200)
 		w.Write([]byte("OK\n"))
 		logger("client: "+client+" succesfully updated AWS DNS hostname: "+hostname+" ip: "+ip, "info")
 	}

@@ -23,6 +23,7 @@ func main() {
 	http.HandleFunc("/aws/", BasicAuth(awsHandler))
 	http.HandleFunc("/cloudflare/", BasicAuth(cfHandler))
 	http.HandleFunc("/digitalocean/", BasicAuth(doHandler))
+	http.HandleFunc("/azure/", BasicAuth(azureHandler))
 	http.ListenAndServe(connectionString, nil)
 }
 
