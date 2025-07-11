@@ -8,11 +8,11 @@ Cloud DDNS provides a unified interface for updating DNS records across differen
 
 ## Supported Providers
 
-- **AWS Route53** - Amazon's DNS service
-- **Cloudflare DNS** - Cloudflare's DNS service  
-- **Azure DNS** - Microsoft Azure's DNS service
-- **DigitalOcean DNS** - DigitalOcean's DNS service
-- **OVH DNS** - OVH's DNS service (EU, CA, US, AU endpoints)
+- **AWS Route53** 
+- **Cloudflare DNS** 
+- **Azure DNS** 
+- **DigitalOcean DNS** 
+- **OVH DNS** 
 
 ## Key Features
 
