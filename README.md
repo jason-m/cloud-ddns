@@ -79,7 +79,7 @@ All providers use HTTP Basic Authentication with provider-specific credentials:
 
 ## Documentation
 
-- **[providers.md](providers.md)** - Detailed setup instructions and examples for each provider
+- **[PROVIDERS.md](PROVIDERS.md)** - Detailed setup instructions and examples for each provider
 - **Configuration** - Command line options and deployment guidance
 - **API Reference** - Complete endpoint documentation
 
