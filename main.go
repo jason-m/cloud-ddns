@@ -24,6 +24,7 @@ func main() {
 	http.HandleFunc("/cloudflare/", BasicAuth(cfHandler))
 	http.HandleFunc("/digitalocean/", BasicAuth(doHandler))
 	http.HandleFunc("/azure/", BasicAuth(azureHandler))
+	http.HandleFunc("/ovh/", BasicAuth(ovhHandler))
 	http.ListenAndServe(connectionString, nil)
 }
 
